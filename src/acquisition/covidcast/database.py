@@ -212,6 +212,7 @@ class Database:
     except Exception as e:
       # rollback is handled in csv_to_database; if you're calling this yourself, handle your own rollback
       raise e
+    self.run_dbjobs()
     return total
 
   def run_dbjobs(self):
