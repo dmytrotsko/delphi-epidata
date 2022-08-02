@@ -13,7 +13,7 @@ import epiweeks as epi
 
 from delphi_utils import Nans
 from delphi.utils.epiweek import delta_epiweeks
-from ....src.acquisition.covidcast.csv_importer import CsvImporter, CsvRowValue
+from delphi.epidata.acquisition.covidcast.csv_importer import CsvImporter, CsvRowValue
 
 # py3tester coverage target
 __test_target__ = 'delphi.epidata.acquisition.covidcast.csv_importer'
