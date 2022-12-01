@@ -1,8 +1,9 @@
 from flask import Blueprint, request
 
-from .._config import AUTH
 from .._query import execute_query, filter_integers, filter_strings
-from .._validate import check_auth_token, extract_integers, require_all
+from .._validate import extract_integers, require_all
+from .._security import require_role
+
 
 # first argument is the endpoint name
 bp = Blueprint("norostat", __name__)
@@ -10,8 +11,8 @@ alias = None
 
 
 @bp.route("/", methods=("GET", "POST"))
+@require_role("norostat")
 def handle():
-    check_auth_token(AUTH["norostat"])
     require_all("location", "epiweeks")
 
     location = request.values["location"]

@@ -1,11 +1,11 @@
-from typing import Any, Dict, List
+from typing import Any, Dict, List, Tuple
 
 from flask import Blueprint
 
-from .._config import AUTH
+from .._security import current_user
+
 from .._query import execute_queries, filter_integers, filter_strings
 from .._validate import (
-    check_auth_token,
     extract_integer,
     extract_integers,
     extract_strings,
@@ -19,7 +19,7 @@ alias = None
 
 @bp.route("/", methods=("GET", "POST"))
 def handle():
-    authorized = check_auth_token(AUTH["fluview"], optional=True)
+    authorized = current_user.has_role("fluview")
 
     require_all("epiweeks", "regions")
 
