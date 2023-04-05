@@ -9,6 +9,7 @@ from utils import Utils
 # from delphi.epidata.acquisition.covid_hosp.common.database import Columndef
 
 # ruamel preserves key ordering, comments, and some formatting for a "round trip" of a yaml file import-->export
+from ruamel.yaml.comments import CommentedSeq
 from ruamel.yaml.main import (
   RoundTripRepresenter,
   round_trip_load as yaml_load,
@@ -191,8 +192,13 @@ class CovidHospSomething:
     if col_name == sql_name:
       sql_name = None
 
+    # CommentedSeq is a sequence (a list) with formatting for its yaml output
+    col = CommentedSeq([dtype_cplx, col_name, sql_name])
+    # sets style to "flow", which prints this object in a single line
+    col._yaml_format.set_flow_style()
+
     # add new column to end of current column list
-    self.dataset(ds_name)['ORDERED_CSV_COLUMNS'].append([dtype_cplx, col_name, sql_name])
+    self.dataset(ds_name)['ORDERED_CSV_COLUMNS'].append(col)
 
 
   def get_ds_info(self, ds_name):
