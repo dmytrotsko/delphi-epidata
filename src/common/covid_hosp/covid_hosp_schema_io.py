@@ -6,7 +6,7 @@ import requests
 import json
 
 from utils import Utils
-# from delphi.epidata.acquisition.covid_hosp.common.database import Columndef
+from delphi.epidata.acquisition.covid_hosp.common.database import Columndef
 
 # ruamel preserves key ordering, comments, and some formatting for a "round trip" of a yaml file import-->export
 from ruamel.yaml.comments import CommentedSeq
