@@ -60,13 +60,12 @@ jobs:
 
       # MODULE_NAME specifies the location of the `app` variable, the actual WSGI application object to run.
       # see https://github.com/tiangolo/meinheld-gunicorn-docker#module_name
-      - name: Start services
+      - name: Start database and Redis services
         run: |
           docker network create --driver bridge delphi-net
           docker run --rm -d -p 13306:3306 --network delphi-net --name delphi_database_epidata --cap-add=sys_nice delphi_database_epidata
           docker run --rm -d -p 6379:6379 --network delphi-net --name delphi_redis delphi_redis
-          docker run -d -p 10080:80 --env "MODULE_NAME=delphi.epidata.server.main" --env "SQLALCHEMY_DATABASE_URI=mysql+mysqldb://user:pass@delphi_database_epidata:3306/epidata" --env "FLASK_SECRET=abc" --env "FLASK_PREFIX=/epidata" --env "REDIS_HOST=delphi_redis" --env "API_KEY_REGISTER_WEBHOOK_TOKEN=abc" --env "API_KEY_ADMIN_PASSWORD=test_admin_password" --network delphi-net --name delphi_web_epidata delphi_web_epidata
-          docker ps
+          
 
       - run: |
           wget https://raw.githubusercontent.com/eficode/wait-for/master/wait-for
@@ -74,22 +73,22 @@ jobs:
           ./wait-for localhost:13306 -- echo 'ready'
           sleep 10s
 
-      - name: Check containers
+      - name: Start delphi_web_epidata
         run: |
+          docker run --rm -d -p 10080:80 --env "MODULE_NAME=delphi.epidata.server.main" --env "SQLALCHEMY_DATABASE_URI=mysql+mysqldb://user:pass@delphi_database_epidata:3306/epidata" --env "FLASK_SECRET=abc" --env "FLASK_PREFIX=/epidata" --env "REDIS_HOST=delphi_redis" --env "API_KEY_REGISTER_WEBHOOK_TOKEN=abc" --env "API_KEY_ADMIN_PASSWORD=test_admin_password" --network delphi-net --name delphi_web_epidata delphi_web_epidata
           docker ps
-          docker logs delphi_web_epidata
-          
+
       - name: Run Unit Tests
         run: |
           docker run --rm --network delphi-net --env "SQLALCHEMY_DATABASE_URI=mysql+mysqldb://user:pass@delphi_database_epidata:3306/epidata" --env "FLASK_SECRET=abc" delphi_web_python python -m pytest --import-mode importlib repos/delphi/delphi-epidata/tests
 
-      # - name: Run Integration Tests
-      #   run: |
-      #     docker run --rm --network delphi-net delphi_web_python python -m pytest --import-mode importlib repos/delphi/delphi-epidata/integrations
+      - name: Run Integration Tests
+        run: |
+          docker run --rm --network delphi-net delphi_web_python python -m pytest --import-mode importlib repos/delphi/delphi-epidata/integrations
 
       - name: Clean Up
         run: |
-          docker stop delphi_database_epidata delphi_web_epidata
+          docker stop delphi_database_epidata delphi_web_epidata delphi_redis
           docker network remove delphi-net
 
   build_js_client:
