@@ -12,7 +12,6 @@ from ._db import metadata, engine
 from ._exceptions import MissingOrWrongSourceException
 from .endpoints import endpoints
 from .endpoints.admin import bp as admin_bp, enable_admin
-from ._security import register_user_role
 from ._limiter import limiter, apply_limit
 
 __all__ = ["app"]
